@@ -33,7 +33,11 @@
     },
     {
       "file": "packed/assets-07.json.gz",
-      "sha256": "c0124958246dfcbcc49d92b82d1e2f3bf1c9d108922ed74d2446a3f51de54c27"
+      "sha256": "78de7925ec4b41cc40ccfdfd0727a1a26733183010046a01fa88d096882cb2a9"
+    },
+    {
+      "file": "packed/assets-08.json.gz",
+      "sha256": "826dee548ca4831c4c7d87e322b343e0faf4f4ea79b1c236e74d6d9ed9dc274f"
     }
   ]
 }
