@@ -1,0 +1,17 @@
+{
+  "name": "chanstone-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Self-hosted CHANSTONE portfolio, preserving the original published Framer layout and interactions.",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/serve.mjs",
+    "preview": "node scripts/serve.mjs",
+    "check": "node scripts/check.mjs && node scripts/test-contact.mjs && node scripts/test-cms.mjs",
+    "pack-assets": "node scripts/pack-assets.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
