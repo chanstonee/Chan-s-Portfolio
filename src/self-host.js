@@ -1,3 +1,8 @@
+const responsiveStyle = document.createElement('style');
+responsiveStyle.dataset.chanstoneResponsiveFixes = '';
+responsiveStyle.textContent = '@media(max-width:809.98px){.framer-ASjQE .framer-znsv7z{height:64px}}';
+document.head?.append(responsiveStyle);
+
 /* Small, editable adapter around the original published Framer runtime. */
 (() => {
   const config = window.CHANSTONE_CONFIG;
