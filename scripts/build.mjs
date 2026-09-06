@@ -13,10 +13,12 @@ const out = path.resolve(root, process.env.BUILD_DIR || 'dist');
 if (![path.join(root, 'dist'), path.join(root, 'dist-test')].includes(out)) throw new Error('Unsupported build directory');
 const siteUrl = (process.env.SITE_URL || config.siteUrl || '').replace(/\/$/, '');
 const manifest = JSON.parse(await readFile(path.join(source, 'manifest.json'), 'utf8'));
+const unusedImages = JSON.parse(await readFile(path.join(source, 'unused-images.json'), 'utf8'));
 const pages = ['/', '/projects/dssystem', '/projects/shmycar', '/projects/playon', '/projects/gacha', '/projects/captain-crix', '/404'];
 const origin = 'https://chanstone.framer.website';
 const canonical = value => { try { const u = new URL(value.replaceAll('&amp;', '&')); return u.origin + u.pathname; } catch { return value; } };
 const mapping = new Map(Object.entries(manifest).filter(([,v]) => v.file.startsWith('files/')).map(([url,v]) => [url, base + 'assets/' + path.basename(v.file)]));
+for (const url of unusedImages) mapping.set(canonical(url), base + 'assets/image-placeholder.svg');
 
 function localize(text, url) {
   // Work cards in both column and list variants navigate in the current tab.
@@ -113,6 +115,8 @@ for (const route of pages) {
   await writeFile(path.join(out, relativeOut), html);
 }
 await copyFile(path.join(root, 'src/self-host.js'), path.join(out, 'assets/self-host.js'));
+await copyFile(path.join(root, 'src/image-placeholder.svg'), path.join(out, 'assets/image-placeholder.svg'));
+copied.push({ url: 'local:image-placeholder', file: 'assets/image-placeholder.svg', bytes: 125 });
 await writeFile(path.join(out, '.nojekyll'), '');
 await writeFile(path.join(out, 'build-info.json'), JSON.stringify({ name: config.name, basePath: base, routes: pages, assets: copied.length, contactMode: config.contactMode }, null, 2));
 await writeFile(path.join(out, 'asset-manifest.json'), JSON.stringify(copied, null, 2));
