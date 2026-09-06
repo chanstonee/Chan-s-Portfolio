@@ -77,7 +77,9 @@ Framer의 서버 전송 기능은 정적 호스팅으로 함께 이전할 수 �
 | `source/packed/` | 이미지·폰트·실행 모듈 압축 묶음. 빌드 시 자동 복원 |
 | `source/files/` | 원본 이미지·영상·폰트·CMS 데이터·Framer 실행 모듈 |
 | `source/manifest.json` | 원본 URL과 로컬 파일 매핑 |
+| `source/unused-images.json` | 제거된 이미지의 숨은 Framer 참조를 로컬 대체 이미지로 연결하는 목록 |
 | `src/self-host.js` | 메일 연결·문의 폼·접근성 보완 |
+| `src/image-placeholder.svg` | 숨은 이전 참조가 외부 이미지를 요청하지 않게 하는 투명 대체 이미지 |
 | `config/site.json` | 이메일·배포 경로·사이트 주소 |
 | `scripts/build.mjs` | 모든 정적 참조를 로컬 경로로 변환 |
 | `scripts/serve.mjs` | 영상 Range 요청을 지원하는 로컬 서버 |
@@ -86,7 +88,9 @@ Framer의 서버 전송 기능은 정적 호스팅으로 함께 이전할 수 �
 | `ANALYSIS.md` | 구조·사이즈·인터랙션 이식 메모 |
 | `design-qa.md` | 실제 브라우저 검증 결과 |
 
-보유한 포트폴리오 이미지로 교체하려면 `source/manifest.json`에서 원본 URL 또는 파일명을 검색한 뒤, 먼저 `npm run build`로 파일을 복원한 다음 대응하는 `source/files/` 파일을 같은 형식·파일명으로 바꿉니다. 이후 `npm run pack-assets`와 `npm run build`를 실행하고 압축 묶음과 메타데이터도 커밋합니다. 이미지 비율을 유지하면 원본 레이아웃이 유지됩니다. 상세 이미지 속 문구는 이 프로젝트에서 재작성하지 않았습니다.
+현재 사이트에서 쓰는 이미지만 52개 보존했습니다. 공통 이미지는 `avatar.png`, `home-tv-frame.png`처럼 용도를 이름에 적었고, 프로젝트 이미지는 `dssystem-01.jpg`, `playon-01.jpg`처럼 프로젝트별 순번으로 정리했습니다.
+
+이미지를 교체하려면 먼저 `npm run build`로 `source/files/`를 복원하고, 읽기 쉬운 해당 파일을 같은 형식·파일명으로 바꿉니다. 이후 `npm run pack-assets`와 `npm run build`를 실행하고 압축 묶음과 메타데이터를 커밋합니다. 이미지 비율을 유지하면 원본 레이아웃이 유지됩니다. 상세 이미지 속 문구는 이 프로젝트에서 재작성하지 않았습니다.
 
 본문 텍스트를 바꾸려면 HTML 초기 화면과 해당 Framer 실행 모듈 양쪽을 수정해야 합니다. 상세 본문의 동적 데이터는 바이너리 CMS 파일에도 들어 있습니다. 한쪽만 바꾸면 화면이 로드되면서 원래 문구로 돌아갈 수 있습니다. 자주 수정하는 사이트로 확장하려면 추후 편집하기 쉬운 컴포넌트와 콘텐츠 데이터로 분리하는 작업이 적합합니다.
 
