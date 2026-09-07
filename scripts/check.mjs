@@ -4,7 +4,9 @@ import assert from 'node:assert/strict';
 const root=path.resolve(process.env.BUILD_DIR || 'dist');
 const info=JSON.parse(await readFile(path.join(root,'build-info.json'),'utf8'));
 const assets=JSON.parse(await readFile(path.join(root,'asset-manifest.json'),'utf8'));
+assert(assets.some(item=>item.file==='assets/about-pixel-reveal.jpg'),'Missing ABOUT pixel-reveal asset');
 let checked=0;
+let aboutPortraitReferences=0;
 for(const item of assets){
   const s=await stat(path.join(root,item.file));
   assert(s.size>0,`Empty asset: ${item.file}`);
@@ -23,6 +25,7 @@ async function walk(dir){
     const text=await readFile(file,'utf8');
     const base=info.basePath.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
     const refs=[...text.matchAll(new RegExp(base+'assets/[^\\s"\'<>`\\\\)]+','g'))].map(x=>x[0]);
+    aboutPortraitReferences+=refs.filter(ref=>ref.split(/[?#]/)[0]===`${info.basePath}assets/about-pixel-reveal.jpg`).length;
     for(const ref of new Set(refs.filter(ref => !ref.includes('${')))){
       const relative=ref.slice(info.basePath.length).split(/[?#]/)[0];
       assert((await stat(path.join(root,relative))).isFile(),`Missing local reference in ${file}: ${ref}`);
@@ -37,6 +40,7 @@ async function walk(dir){
   }
 }
 await walk(root);
+assert(aboutPortraitReferences>0,'ABOUT portrait is not referenced by the built site');
 for(const route of info.routes){
   const file=route==='/'?'index.html':route==='/404'?'404.html':route.slice(1)+'/index.html';
   assert((await stat(path.join(root,file))).isFile(),`Missing page ${route}`);
