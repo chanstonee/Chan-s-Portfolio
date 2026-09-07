@@ -7,6 +7,31 @@ document.head?.append(responsiveStyle);
 (() => {
   const config = window.CHANSTONE_CONFIG;
   const recipient = config.email;
+  const deferredAboutHash = (window.location.hash || '').toLowerCase() === '#about';
+
+  // On a direct #about visit the browser scrolls before Framer's loading cover
+  // has cleared, so the original one-shot text scramble finishes out of sight.
+  // Defer only that initial anchor jump until the page is visible and mounted.
+  if (deferredAboutHash) {
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`);
+    window.addEventListener('load', () => {
+      let attempts = 0;
+      const revealAbout = () => {
+        const about = document.getElementById('about');
+        if (!about && attempts++ < 30) {
+          window.setTimeout(revealAbout, 100);
+          return;
+        }
+        if (!about) return;
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+          about.scrollIntoView({ block: 'start' });
+          window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}#about`);
+        }));
+      };
+      // The original intro animation clears at roughly six seconds.
+      window.setTimeout(revealAbout, 6500);
+    }, { once: true });
+  }
 
   // Framer-hosted form submission is unavailable on a static host. Prepare an
   // email draft instead. Nothing is sent until the visitor sends it in their app.
