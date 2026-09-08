@@ -1,4 +1,5 @@
 import { readFile, writeFile, mkdir, copyFile, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { restoreAssets } from './restore-assets.mjs';
@@ -14,6 +15,8 @@ if (![path.join(root, 'dist'), path.join(root, 'dist-test')].includes(out)) thro
 const siteUrl = (process.env.SITE_URL || config.siteUrl || '').replace(/\/$/, '');
 const manifest = JSON.parse(await readFile(path.join(source, 'manifest.json'), 'utf8'));
 const unusedImages = JSON.parse(await readFile(path.join(source, 'unused-images.json'), 'utf8'));
+const adapterSource = await readFile(path.join(root, 'src/self-host.js'));
+const adapterVersion = createHash('sha256').update(adapterSource).digest('hex').slice(0, 12);
 const pages = ['/', '/projects/dssystem', '/projects/shmycar', '/projects/playon', '/projects/store36-5', '/projects/gacha', '/projects/captain-crix', '/404'];
 const origin = 'https://chanstone.framer.website';
 const canonical = value => { try { const u = new URL(value.replaceAll('&amp;', '&')); return u.origin + u.pathname; } catch { return value; } };
@@ -109,12 +112,12 @@ for (const route of pages) {
   });
   const runtimeConfig = JSON.stringify({ ...config, basePath: base, siteUrl }).replaceAll('<', '\\u003c');
   const canonicalTag = siteUrl ? `<link rel="canonical" href="${siteUrl}${route === '/' ? '/' : route}">` : '';
-  html = html.replace('<head>', `<head>\n${canonicalTag}\n<script>window.CHANSTONE_CONFIG=${runtimeConfig};if(location.pathname.endsWith('/')&&location.pathname.includes('/projects/'))history.replaceState(history.state,'',location.pathname.slice(0,-1)+location.search+location.hash);</script>\n<script src="${base}assets/self-host.js"></script>`);
+  html = html.replace('<head>', `<head>\n${canonicalTag}\n<script>window.CHANSTONE_CONFIG=${runtimeConfig};if(location.pathname.endsWith('/')&&location.pathname.includes('/projects/'))history.replaceState(history.state,'',location.pathname.slice(0,-1)+location.search+location.hash);</script>\n<script src="${base}assets/self-host.js?v=${adapterVersion}"></script>`);
   const relativeOut = route === '/' ? 'index.html' : route === '/404' ? '404.html' : route.slice(1) + '/index.html';
   await mkdir(path.dirname(path.join(out, relativeOut)), { recursive: true });
   await writeFile(path.join(out, relativeOut), html);
 }
-await copyFile(path.join(root, 'src/self-host.js'), path.join(out, 'assets/self-host.js'));
+await writeFile(path.join(out, 'assets/self-host.js'), adapterSource);
 await copyFile(path.join(root, 'src/image-placeholder.svg'), path.join(out, 'assets/image-placeholder.svg'));
 copied.push({ url: 'local:image-placeholder', file: 'assets/image-placeholder.svg', bytes: 125 });
 await writeFile(path.join(out, '.nojekyll'), '');
