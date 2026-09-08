@@ -24,7 +24,7 @@ if (skipLoader) document.documentElement.dataset.chanstoneSkipLoader = '';
 
 const responsiveStyle = document.createElement('style');
 responsiveStyle.dataset.chanstoneResponsiveFixes = '';
-responsiveStyle.textContent = '@media(max-width:809.98px){.framer-ASjQE .framer-znsv7z{height:64px!important}}';
+responsiveStyle.textContent = '@media(max-width:809.98px){.framer-ASjQE .framer-znsv7z{height:64px!important}}@media(min-width:1200px){a[data-chanstone-work-state="active"]{max-width:none!important}a[data-chanstone-work-state="inactive"]{max-width:216px!important}a[data-chanstone-work-state="active"] .framer-tGC3N,a[data-chanstone-work-state="active"] .framer-1bbhv8e{width:100%!important}a[data-chanstone-work-state="active"] .framer-9iqpm9-container{width:100%!important;opacity:1!important;visibility:visible!important}a[data-chanstone-work-state="active"] .framer-9iqpm9-container>*{background-color:rgb(36,36,36)!important}a[data-chanstone-work-state="inactive"] .framer-9iqpm9-container>*{background-color:rgb(158,158,158)!important}a[data-chanstone-work-state="active"] p.framer-text{--framer-text-color:rgb(36,36,36)!important;color:rgb(36,36,36)!important}a[data-chanstone-work-state="inactive"] p.framer-text{--framer-text-color:rgb(158,158,158)!important;color:rgb(158,158,158)!important}}';
 document.head?.append(responsiveStyle);
 
 /* Small, editable adapter around the original published Framer runtime. */
@@ -162,6 +162,72 @@ document.head?.append(responsiveStyle);
       }
     }
   }
+  const projectSlug = card => (card.getAttribute('href') || '').match(/\/projects\/([^/?#]+)/)?.[1] || '';
+  function bindDesktopWorkPreview(parent, base) {
+    // The desktop preview is not inside a work-card: it is a sibling image
+    // stack managed by Framer. The inserted 004 card has no Framer listeners,
+    // so control the whole six-item desktop state in one small adapter.
+    const desktop = parent.closest('.framer-1x51scc');
+    const preview = desktop?.querySelector('[data-framer-name="image-wrapper"]');
+    if (!preview) return;
+    const cards = () => [...parent.querySelectorAll(':scope > a[data-framer-name^="block-holder-"][href*="/projects/"]')];
+    if (!cards().some(card => projectSlug(card) === 'store36-5')) return;
+
+    let overlay = preview.querySelector('img[data-chanstone-store-preview]');
+    if (!overlay) {
+      overlay = document.createElement('img');
+      overlay.dataset.chanstoneStorePreview = '';
+      overlay.decoding = 'async';
+      overlay.alt = '';
+      overlay.setAttribute('aria-hidden', 'true');
+      overlay.style.cssText = 'position:absolute;inset:0;z-index:99;display:block;width:100%;height:100%;object-fit:cover;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 180ms ease';
+      preview.append(overlay);
+    }
+    const layerSrc = name => preview.querySelector(`[data-framer-name="${name}"] img`)?.getAttribute('src') || '';
+    const storePreviewSrc = `${base}assets/store365-thumbnail.png`;
+    // Keep the new image decoded in the hidden overlay so the first hover does
+    // not flash the old preview while a large image starts downloading.
+    if (!overlay.getAttribute('src')) overlay.src = storePreviewSrc;
+    const sources = {
+      dssystem: layerSrc('img-1'),
+      shmycar: layerSrc('img-2'),
+      playon: layerSrc('img-3'),
+      'store36-5': storePreviewSrc,
+      gacha: layerSrc('img-5'),
+      // Captain CRIX was the original fourth Framer preview before Store36.5
+      // was inserted, so retain that source as the new sixth preview.
+      'captain-crix': layerSrc('img-4'),
+    };
+    const setActive = slug => {
+      const src = sources[slug] || '';
+      if (!src) return;
+      if (overlay.getAttribute('src') !== src) overlay.src = src;
+      overlay.style.opacity = '1';
+      overlay.style.visibility = 'visible';
+      for (const card of cards()) {
+        card.dataset.chanstoneWorkState = projectSlug(card) === slug ? 'active' : 'inactive';
+      }
+    };
+    const clearActive = () => {
+      overlay.style.opacity = '0';
+      overlay.style.visibility = 'hidden';
+      for (const card of cards()) delete card.dataset.chanstoneWorkState;
+    };
+    for (const card of cards()) {
+      if (card.dataset.chanstoneDesktopPreviewBound === '1') continue;
+      card.dataset.chanstoneDesktopPreviewBound = '1';
+      const slug = projectSlug(card);
+      card.addEventListener('pointerenter', () => setActive(slug));
+      card.addEventListener('focusin', () => setActive(slug));
+    }
+    if (parent.dataset.chanstoneDesktopPreviewBound !== '1') {
+      parent.dataset.chanstoneDesktopPreviewBound = '1';
+      parent.addEventListener('pointerleave', clearActive);
+      parent.addEventListener('focusout', event => {
+        if (!parent.contains(event.relatedTarget)) clearActive();
+      });
+    }
+  }
   function syncWorkCards() {
     // The published CMS list is static, so keep the editable project order and
     // copy in one small adapter. This runs for every responsive variant that
@@ -176,7 +242,6 @@ document.head?.append(responsiveStyle);
       ['gacha', '005', 'GACHA APP [AIGC]'],
       ['captain-crix', '006', 'IPX운세앱 [AIGC]'],
     ];
-    const slugOf = card => (card.getAttribute('href') || '').match(/\/projects\/([^/?#]+)/)?.[1] || '';
     const groups = new Map();
     for (const card of allCards) {
       const parent = card.parentElement;
@@ -187,7 +252,7 @@ document.head?.append(responsiveStyle);
     const base = window.CHANSTONE_CONFIG?.basePath || '/';
     let allReady = true;
     for (const [parent, cards] of groups) {
-      const bySlug = new Map(cards.map(card => [slugOf(card), card]));
+      const bySlug = new Map(cards.map(card => [projectSlug(card), card]));
       if (!bySlug.has('store36-5')) {
         const template = bySlug.get('gacha') || cards[cards.length - 1];
         if (!template) continue;
@@ -205,9 +270,12 @@ document.head?.append(responsiveStyle);
           && textNodes[0]?.textContent === number
           && textNodes[1]?.textContent === title
           && getComputedStyle(card).order === String(index)
-          && (slug !== 'store36-5' || imageSrc.includes('store365-thumbnail.png'));
+          && (slug !== 'store36-5' || Boolean(card.closest('.framer-1x51scc')) || imageSrc.includes('store365-thumbnail.png'));
       });
-      if (groupReady) continue;
+      if (groupReady) {
+        bindDesktopWorkPreview(parent, base);
+        continue;
+      }
       allReady = false;
       for (const [index, card] of desired.entries()) {
         const [slug, number, title] = specs[index];
@@ -241,6 +309,7 @@ document.head?.append(responsiveStyle);
       if (current.length !== desired.length || current.some((card, index) => card !== desired[index])) {
         for (const card of desired) parent.appendChild(card);
       }
+      bindDesktopWorkPreview(parent, base);
     }
     return allReady;
   }
