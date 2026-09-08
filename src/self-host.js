@@ -32,6 +32,57 @@ document.head?.append(responsiveStyle);
   const config = window.CHANSTONE_CONFIG;
   const recipient = config.email;
   const deferredAboutHash = (window.location.hash || '').toLowerCase() === '#about';
+  const deferredWorkHash = (window.location.hash || '').toLowerCase() === '#work';
+
+  // Framer's router updates the hash for the Work menu, but its hydration
+  // pass then restores the scroll position to the top of the document. Keep
+  // the URL/hash behavior while explicitly positioning the page at the
+  // SELECTED WORKS section (the element with id="work").
+  let workScrollToken = 0;
+  const normalizedPath = path => {
+    const value = (path || '/').replace(/\/+$/, '');
+    return value || '/';
+  };
+  const isWorkHashLink = href => {
+    try {
+      return new URL(href, document.baseURI).hash.toLowerCase() === '#work';
+    } catch {
+      return false;
+    }
+  };
+  function scrollToWork({ smooth = false, url = null } = {}) {
+    const work = document.getElementById('work');
+    if (!work) return false;
+    const top = Math.max(0, work.getBoundingClientRect().top + window.scrollY);
+    window.scrollTo({ top, behavior: smooth ? 'smooth' : 'auto' });
+    if (url) {
+      const next = `${url.pathname}${url.search}#work`;
+      if (`${window.location.pathname}${window.location.search}${window.location.hash}` !== next) {
+        window.history.pushState(window.history.state, '', next);
+      }
+    }
+    return true;
+  }
+  function scheduleWorkScroll(options = {}) {
+    const token = ++workScrollToken;
+    // The published Framer bundle can perform a second layout during
+    // hydration. Re-apply the anchor after those layout passes have settled.
+    [0, 120, 450, 1000, 2200].forEach(delay => {
+      window.setTimeout(() => {
+        if (token !== workScrollToken) return;
+        scrollToWork(options);
+      }, delay);
+    });
+  }
+
+  if (deferredWorkHash) {
+    // Prevent the browser's early native jump; Framer otherwise moves back to
+    // the hero while mounting. The hash is restored once the section exists.
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}`);
+    const revealWork = () => scheduleWorkScroll({ smooth: false, url: new URL(window.location.href) });
+    if (document.readyState === 'complete') window.setTimeout(revealWork, 250);
+    else window.addEventListener('load', () => window.setTimeout(revealWork, 250), { once: true });
+  }
 
   // On a direct #about visit the browser scrolls before Framer's loading cover
   // has cleared, so the original one-shot text scramble finishes out of sight.
@@ -195,6 +246,23 @@ document.head?.append(responsiveStyle);
       const anchor = event.target instanceof Element ? event.target.closest('a[href]') : null;
       if (!anchor) return;
       const href = anchor.getAttribute('href') || '';
+      if (isWorkHashLink(href) && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+        const targetUrl = new URL(href, document.baseURI);
+        if (targetUrl.origin === window.location.origin
+          && normalizedPath(targetUrl.pathname) !== normalizedPath(window.location.pathname)) {
+          // On a project page, the Work link first returns to the portfolio
+          // home. Skip the one-shot loader because this is menu navigation.
+          document.documentElement.dataset.chanstoneSkipLoader = '';
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          window.location.assign(`${targetUrl.pathname}${targetUrl.search}#work`);
+          return;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        scheduleWorkScroll({ smooth: true, url: targetUrl });
+        return;
+      }
       if (href.includes('/projects/')) {
         document.documentElement.dataset.chanstoneSkipLoader = '';
       }
