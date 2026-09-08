@@ -3,25 +3,29 @@
     "file": "home.html",
     "bytes": 827855
   },
+  "https://chanstone.framer.website/projects/store36-5": {
+    "file": "projects-store36-5.html",
+    "bytes": 5070
+  },
   "https://chanstone.framer.website/projects/captain-crix": {
     "file": "projects-captain-crix.html",
-    "bytes": 381102
+    "bytes": 379242
   },
   "https://chanstone.framer.website/projects/dssystem": {
     "file": "projects-dssystem.html",
-    "bytes": 382130
+    "bytes": 380222
   },
   "https://chanstone.framer.website/projects/gacha": {
     "file": "projects-gacha.html",
-    "bytes": 375776
+    "bytes": 378360
   },
   "https://chanstone.framer.website/projects/playon": {
     "file": "projects-playon.html",
-    "bytes": 382680
+    "bytes": 380772
   },
   "https://chanstone.framer.website/projects/shmycar": {
     "file": "projects-shmycar.html",
-    "bytes": 397293
+    "bytes": 395385
   },
   "https://fonts.gstatic.com/s/geist/v4/gyBhhwUxId8gMGYQMKR3pzfaWI_Re-Q4mJPby1QNtA.woff2": {
     "file": "files/fbc012d4e7-gyBhhwUxId8gMGYQMKR3pzfaWI_Re-Q4mJPby1QNtA.woff2",
@@ -776,8 +780,8 @@
     "bytes": 235550
   },
   "https://framerusercontent.com/images/3wGUfe2hQARTJZXhNzQH7Cmzw.jpg": {
-    "file": "files/gacha-04.jpg",
-    "bytes": 313670
+    "file": "files/gacha-04.png",
+    "bytes": 2388493
   },
   "https://framerusercontent.com/images/5yKEjDpEcFlEkqtjVusIV5yWuk.png": {
     "file": "files/captain-crix-07.png",
@@ -837,7 +841,7 @@
   },
   "https://framerusercontent.com/images/LzjpyjWu6NhEP2XlgiNWO8LFkIg.png": {
     "file": "files/gacha-01.png",
-    "bytes": 1156361
+    "bytes": 4130386
   },
   "https://framerusercontent.com/images/OfT4nl7Qy8IN6FtsEZaTLYW4FE.jpg": {
     "file": "files/playon-01.jpg",
@@ -848,8 +852,8 @@
     "bytes": 150142
   },
   "https://framerusercontent.com/images/SklcnvBWmkjZxFsMXID6lcIns.jpg": {
-    "file": "files/gacha-05.jpg",
-    "bytes": 390287
+    "file": "files/gacha-05.png",
+    "bytes": 2867324
   },
   "https://framerusercontent.com/images/U3XdCwDL71OrfNWYZIdnPryKdk.png": {
     "file": "files/shmycar-02.png",
@@ -924,8 +928,8 @@
     "bytes": 753170
   },
   "https://framerusercontent.com/images/lEPp9ImT4NF2pYboC9IOqBo9yzQ.jpg": {
-    "file": "files/gacha-07.jpg",
-    "bytes": 291930
+    "file": "files/gacha-06.png",
+    "bytes": 2400241
   },
   "https://framerusercontent.com/images/m8PUkejdxd969kjTroSflB278.png": {
     "file": "files/next-project-captain-crix.png",
@@ -948,20 +952,20 @@
     "bytes": 567176
   },
   "https://framerusercontent.com/images/u33LjjMf58WoSjNd0qbh9E07fIs.jpg": {
-    "file": "files/gacha-02.jpg",
-    "bytes": 385201
+    "file": "files/gacha-02.png",
+    "bytes": 2651761
   },
   "https://framerusercontent.com/images/wWcHIwA98dkAnOQdePUhvYPNwro.png": {
     "file": "files/captain-crix-05.png",
     "bytes": 2493394
   },
   "https://framerusercontent.com/images/wgtZVbo42OsQ2eu2lW3qYo3TQ.jpg": {
-    "file": "files/gacha-03.jpg",
-    "bytes": 439037
+    "file": "files/gacha-03.png",
+    "bytes": 2841212
   },
   "https://framerusercontent.com/images/wxX8XIXOOuY6GKGVOT7Z5Th1YI.jpg": {
-    "file": "files/gacha-06.jpg",
-    "bytes": 418299
+    "file": "files/gacha-07.png",
+    "bytes": 2930778
   },
   "https://framerusercontent.com/images/x2hP3RkKFeyhW5zutqBU4qrSH7o.png": {
     "file": "files/captain-crix-06.png",
@@ -1271,29 +1275,9 @@
     "file": "files/captain-crix-13.webp",
     "bytes": 58510
   },
-  "https://framerusercontent.com/images/1CuofwtSBh1g8EOXUrhPeVNJ9xM.jpg": {
-    "file": "files/gacha-08.jpg",
-    "bytes": 243782
-  },
-  "https://framerusercontent.com/images/2oCaida3SFm4dFEH9CEppnil74.jpg": {
-    "file": "files/gacha-09.jpg",
-    "bytes": 209309
-  },
-  "https://framerusercontent.com/images/BZN39XjHeluM21njrTCXNahf0.jpg": {
-    "file": "files/gacha-10.jpg",
-    "bytes": 290029
-  },
-  "https://framerusercontent.com/images/KFFTbGsaOv4eey7Mtm5ljgqadw.jpg": {
-    "file": "files/gacha-11.jpg",
-    "bytes": 261875
-  },
-  "https://framerusercontent.com/images/hmEYR2g2lO9E6mozlamnw7J6Q.jpg": {
-    "file": "files/gacha-12.jpg",
-    "bytes": 238844
-  },
   "https://framerusercontent.com/images/s74SMnqSptLFBa2c6BPQL5Hh58s.png": {
-    "file": "files/gacha-13.png",
-    "bytes": 1119146
+    "file": "files/gacha-09.png",
+    "bytes": 4038323
   },
   "https://framerusercontent.com/images/QnP1PO2H5vMmk1MvaOmXOpoYtUA.png": {
     "file": "files/shmycar-14.png",
@@ -1306,5 +1290,41 @@
   "https://framerusercontent.com/images/uQCJgD3IOapH5QV1O51amyOM.jpg": {
     "file": "files/about-pixel-reveal.jpg",
     "bytes": 307810
+  },
+  "https://framerusercontent.com/images/chanstone-gacha-08.png": {
+    "file": "files/gacha-08.png",
+    "bytes": 2595446
+  },
+  "https://framerusercontent.com/images/store365-01.png": {
+    "file": "files/store365-01.png",
+    "bytes": 1208714
+  },
+  "https://framerusercontent.com/images/store365-02.png": {
+    "file": "files/store365-02.png",
+    "bytes": 371319
+  },
+  "https://framerusercontent.com/images/store365-03.png": {
+    "file": "files/store365-03.png",
+    "bytes": 377266
+  },
+  "https://framerusercontent.com/images/store365-04.png": {
+    "file": "files/store365-04.png",
+    "bytes": 286483
+  },
+  "https://framerusercontent.com/images/store365-05.png": {
+    "file": "files/store365-05.png",
+    "bytes": 133655
+  },
+  "https://framerusercontent.com/images/store365-06.png": {
+    "file": "files/store365-06.png",
+    "bytes": 248650
+  },
+  "https://framerusercontent.com/images/store365-07.png": {
+    "file": "files/store365-07.png",
+    "bytes": 407048
+  },
+  "https://framerusercontent.com/images/store365-08.png": {
+    "file": "files/store365-08.png",
+    "bytes": 242630
   }
 }

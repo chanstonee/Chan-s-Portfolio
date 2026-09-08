@@ -14,7 +14,7 @@ if (![path.join(root, 'dist'), path.join(root, 'dist-test')].includes(out)) thro
 const siteUrl = (process.env.SITE_URL || config.siteUrl || '').replace(/\/$/, '');
 const manifest = JSON.parse(await readFile(path.join(source, 'manifest.json'), 'utf8'));
 const unusedImages = JSON.parse(await readFile(path.join(source, 'unused-images.json'), 'utf8'));
-const pages = ['/', '/projects/dssystem', '/projects/shmycar', '/projects/playon', '/projects/gacha', '/projects/captain-crix', '/404'];
+const pages = ['/', '/projects/dssystem', '/projects/shmycar', '/projects/playon', '/projects/store36-5', '/projects/gacha', '/projects/captain-crix', '/404'];
 const origin = 'https://chanstone.framer.website';
 const canonical = value => { try { const u = new URL(value.replaceAll('&amp;', '&')); return u.origin + u.pathname; } catch { return value; } };
 const mapping = new Map(Object.entries(manifest).filter(([,v]) => v.file.startsWith('files/')).map(([url,v]) => [url, base + 'assets/' + path.basename(v.file)]));
