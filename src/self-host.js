@@ -148,6 +148,20 @@ document.head?.append(responsiveStyle);
     }
   }
   let workCardSyncTimer;
+  function revealStoreCard(card) {
+    if (card.dataset.chanstoneStoreCard !== '1') return;
+    // The cloned card is not registered with Framer's appear-animation
+    // registry, so its copied opacity/translateY reveal state would remain
+    // hidden forever. Reset only those copied reveal styles; the card still
+    // keeps the same layout, hover, and image behavior at every breakpoint.
+    for (const node of [card, ...card.querySelectorAll('*')]) {
+      const computed = getComputedStyle(node);
+      if (node === card || computed.opacity === '0') {
+        node.style.opacity = '1';
+        node.style.transform = 'none';
+      }
+    }
+  }
   function syncWorkCards() {
     // The published CMS list is static, so keep the editable project order and
     // copy in one small adapter. This runs for every responsive variant that
@@ -207,6 +221,7 @@ document.head?.append(responsiveStyle);
             image.srcset = `${src} 512w,${src} 1024w,${src} 1448w`;
             image.alt = 'STORE36.5 차세대 구축';
           }
+          revealStoreCard(card);
         }
         desired.push(card);
       }
