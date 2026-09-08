@@ -205,7 +205,7 @@ document.head?.append(responsiveStyle);
           && textNodes[0]?.textContent === number
           && textNodes[1]?.textContent === title
           && getComputedStyle(card).order === String(index)
-          && (slug !== 'store36-5' || imageSrc.includes('store365-01.png'));
+          && (slug !== 'store36-5' || imageSrc.includes('store365-thumbnail.png'));
       });
       if (groupReady) continue;
       allReady = false;
@@ -226,7 +226,7 @@ document.head?.append(responsiveStyle);
         if (slug === 'store36-5') {
           const image = card.querySelector('img');
           if (image) {
-            const src = `${base}assets/store365-01.png`;
+            const src = `${base}assets/store365-thumbnail.png`;
             if (image.getAttribute('src') !== src) image.src = src;
             const srcset = `${src} 512w,${src} 1024w,${src} 1448w`;
             if (image.getAttribute('srcset') !== srcset) image.srcset = srcset;
