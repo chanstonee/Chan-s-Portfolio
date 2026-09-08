@@ -284,6 +284,10 @@ document.head?.append(responsiveStyle);
     }, true);
     new MutationObserver(mutations => {
       for (const mutation of mutations) for (const node of mutation.addedNodes) enhance(node);
+      // Framer can replace the active responsive variant after the initial
+      // mount (for example after a viewport resize). Re-run the card adapter
+      // so STORE36.5 is recreated and revealed in that newly mounted list.
+      syncWorkCards();
       removeWorkCommentTargets();
     }).observe(document.body, { childList: true, subtree: true });
   });
