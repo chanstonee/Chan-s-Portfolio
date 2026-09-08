@@ -177,13 +177,6 @@ document.head?.append(responsiveStyle);
       ['captain-crix', '006', 'IPX운세앱 [AIGC]'],
     ];
     const slugOf = card => (card.getAttribute('href') || '').match(/\/projects\/([^/?#]+)/)?.[1] || '';
-    const ready = allCards.length === specs.length && specs.every(([slug, number, title], index) => {
-      const card = allCards.find(item => slugOf(item) === slug);
-      return card && card.innerText.includes(number) && card.innerText.includes(title)
-        && getComputedStyle(card).order === String(index)
-        && (slug !== 'store36-5' || card.querySelector('img')?.getAttribute('src')?.includes('store365-01.png'));
-    });
-    if (ready) return true;
     const groups = new Map();
     for (const card of allCards) {
       const parent = card.parentElement;
@@ -192,6 +185,7 @@ document.head?.append(responsiveStyle);
       groups.get(parent).push(card);
     }
     const base = window.CHANSTONE_CONFIG?.basePath || '/';
+    let allReady = true;
     for (const [parent, cards] of groups) {
       const bySlug = new Map(cards.map(card => [slugOf(card), card]));
       if (!bySlug.has('store36-5')) {
@@ -201,29 +195,45 @@ document.head?.append(responsiveStyle);
         store.dataset.chanstoneStoreCard = '1';
         bySlug.set('store36-5', store);
       }
-      const desired = [];
-      for (const [slug, number, title] of specs) {
-        const card = bySlug.get(slug);
-        if (!card) continue;
-        if (card.parentElement !== parent) parent.appendChild(card);
-        card.dataset.framerName = `block-holder-${desired.length + 1}`;
-        card.style.order = String(desired.length);
-        card.href = `${base}projects/${slug}`;
-        card.setAttribute('aria-label', `${number} ${title}`);
+      const desired = specs.map(([slug]) => bySlug.get(slug)).filter(Boolean);
+      const groupReady = desired.length === specs.length && desired.every((card, index) => {
+        const [slug, number, title] = specs[index];
         const textNodes = card.querySelectorAll('p.framer-text');
-        if (textNodes[0]) textNodes[0].textContent = number;
-        if (textNodes[1]) textNodes[1].textContent = title;
+        const imageSrc = card.querySelector('img')?.getAttribute('src') || '';
+        return card.parentElement === parent
+          && card.getAttribute('href') === `${base}projects/${slug}`
+          && textNodes[0]?.textContent === number
+          && textNodes[1]?.textContent === title
+          && getComputedStyle(card).order === String(index)
+          && (slug !== 'store36-5' || imageSrc.includes('store365-01.png'));
+      });
+      if (groupReady) continue;
+      allReady = false;
+      for (const [index, card] of desired.entries()) {
+        const [slug, number, title] = specs[index];
+        if (card.parentElement !== parent) parent.appendChild(card);
+        if (card.dataset.framerName !== `block-holder-${index + 1}`) {
+          card.dataset.framerName = `block-holder-${index + 1}`;
+        }
+        if (card.style.order !== String(index)) card.style.order = String(index);
+        if (card.getAttribute('href') !== `${base}projects/${slug}`) card.href = `${base}projects/${slug}`;
+        if (card.getAttribute('aria-label') !== `${number} ${title}`) {
+          card.setAttribute('aria-label', `${number} ${title}`);
+        }
+        const textNodes = card.querySelectorAll('p.framer-text');
+        if (textNodes[0]?.textContent !== number) textNodes[0].textContent = number;
+        if (textNodes[1]?.textContent !== title) textNodes[1].textContent = title;
         if (slug === 'store36-5') {
           const image = card.querySelector('img');
           if (image) {
             const src = `${base}assets/store365-01.png`;
-            image.src = src;
-            image.srcset = `${src} 512w,${src} 1024w,${src} 1448w`;
-            image.alt = 'STORE36.5 차세대 구축';
+            if (image.getAttribute('src') !== src) image.src = src;
+            const srcset = `${src} 512w,${src} 1024w,${src} 1448w`;
+            if (image.getAttribute('srcset') !== srcset) image.srcset = srcset;
+            if (image.alt !== 'STORE36.5 차세대 구축') image.alt = 'STORE36.5 차세대 구축';
           }
           revealStoreCard(card);
         }
-        desired.push(card);
       }
       // Reorder after Framer hydration has settled so keyboard and screen-reader
       // order matches the visual order as well as the CSS order.
@@ -232,7 +242,7 @@ document.head?.append(responsiveStyle);
         for (const card of desired) parent.appendChild(card);
       }
     }
-    return false;
+    return allReady;
   }
   function startWorkCardSync() {
     let attempts = 0;
