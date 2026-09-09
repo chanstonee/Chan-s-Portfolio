@@ -24,7 +24,7 @@ if (skipLoader) document.documentElement.dataset.chanstoneSkipLoader = '';
 
 const responsiveStyle = document.createElement('style');
 responsiveStyle.dataset.chanstoneResponsiveFixes = '';
-responsiveStyle.textContent = '@media(max-width:809.98px){.framer-ASjQE .framer-znsv7z{height:64px!important}}@media(min-width:1200px){a[data-chanstone-work-state="active"]{max-width:none!important}a[data-chanstone-work-state="inactive"]{max-width:216px!important}a[data-chanstone-work-state="active"] .framer-tGC3N,a[data-chanstone-work-state="active"] .framer-1bbhv8e{width:100%!important}a[data-chanstone-work-state="active"] .framer-9iqpm9-container{width:100%!important;opacity:1!important;visibility:visible!important}a[data-chanstone-work-state="active"] .framer-9iqpm9-container>*{background-color:rgb(36,36,36)!important}a[data-chanstone-work-state="inactive"] .framer-9iqpm9-container>*{background-color:rgb(158,158,158)!important}a[data-chanstone-work-state="active"] p.framer-text{--framer-text-color:rgb(36,36,36)!important;color:rgb(36,36,36)!important}a[data-chanstone-work-state="inactive"] p.framer-text{--framer-text-color:rgb(158,158,158)!important;color:rgb(158,158,158)!important}}';
+responsiveStyle.textContent = '@media(max-width:809.98px){.framer-ASjQE .framer-znsv7z{height:64px!important}}@media(min-width:1200px){a[data-chanstone-work-state]{will-change:max-width;transition:max-width 460ms cubic-bezier(.22,.8,.32,1)}a[data-chanstone-work-state] p.framer-text{transition:color 260ms ease}a[data-chanstone-work-state] .framer-9iqpm9-container>*{transition:background-color 300ms ease}a[data-chanstone-work-state="active"]{max-width:var(--chanstone-work-active-width,100%)!important}a[data-chanstone-work-state="inactive"]{max-width:216px!important}a[data-chanstone-work-state="active"] .framer-tGC3N,a[data-chanstone-work-state="active"] .framer-1bbhv8e{width:100%!important}a[data-chanstone-work-state="active"] .framer-9iqpm9-container{width:100%!important;opacity:1!important;visibility:visible!important}a[data-chanstone-work-state="active"] .framer-9iqpm9-container>*{background-color:rgb(36,36,36)!important}a[data-chanstone-work-state="inactive"] .framer-9iqpm9-container>*{background-color:rgb(158,158,158)!important}a[data-chanstone-work-state="active"] p.framer-text{--framer-text-color:rgb(36,36,36)!important;color:rgb(36,36,36)!important}a[data-chanstone-work-state="inactive"] p.framer-text{--framer-text-color:rgb(158,158,158)!important;color:rgb(158,158,158)!important}}@media(prefers-reduced-motion:reduce){a[data-chanstone-work-state],a[data-chanstone-work-state] p.framer-text,a[data-chanstone-work-state] .framer-9iqpm9-container>*,img[data-chanstone-work-preview]{transition:none!important}}';
 document.head?.append(responsiveStyle);
 
 /* Small, editable adapter around the original published Framer runtime. */
@@ -172,22 +172,41 @@ document.head?.append(responsiveStyle);
     if (!preview) return;
     const cards = () => [...parent.querySelectorAll(':scope > a[data-framer-name^="block-holder-"][href*="/projects/"]')];
     if (!cards().some(card => projectSlug(card) === 'store36-5')) return;
+    const setActiveWidth = () => {
+      const width = Math.round(parent.getBoundingClientRect().width);
+      if (width) parent.style.setProperty('--chanstone-work-active-width', `${width}px`);
+    };
+    setActiveWidth();
+    if (parent.dataset.chanstoneWorkWidthBound !== '1') {
+      parent.dataset.chanstoneWorkWidthBound = '1';
+      new ResizeObserver(setActiveWidth).observe(parent);
+    }
 
-    let overlay = preview.querySelector('img[data-chanstone-store-preview]');
-    if (!overlay) {
+    const createOverlay = (name, zIndex) => {
+      let overlay = preview.querySelector(`img[${name}]`);
+      if (overlay) return overlay;
       overlay = document.createElement('img');
-      overlay.dataset.chanstoneStorePreview = '';
+      overlay.setAttribute(name, '');
       overlay.decoding = 'async';
       overlay.alt = '';
       overlay.setAttribute('aria-hidden', 'true');
-      overlay.style.cssText = 'position:absolute;inset:0;z-index:99;display:block;width:100%;height:100%;object-fit:cover;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 180ms ease';
+      overlay.style.cssText = `position:absolute;inset:0;z-index:${zIndex};display:block;width:100%;height:100%;object-fit:cover;opacity:0;visibility:hidden;pointer-events:none;transition:opacity 360ms cubic-bezier(.22,.8,.32,1)`;
       preview.append(overlay);
-    }
+      return overlay;
+    };
+    const overlays = [
+      createOverlay('data-chanstone-store-preview', 99),
+      createOverlay('data-chanstone-work-preview', 100),
+    ];
+    let activeOverlay = overlays[0];
+    let activeSource = '';
+    let hideTimer = 0;
+    let previewToken = 0;
     const layerSrc = name => preview.querySelector(`[data-framer-name="${name}"] img`)?.getAttribute('src') || '';
     const storePreviewSrc = `${base}assets/store365-thumbnail.png`;
     // Keep the new image decoded in the hidden overlay so the first hover does
     // not flash the old preview while a large image starts downloading.
-    if (!overlay.getAttribute('src')) overlay.src = storePreviewSrc;
+    if (!overlays[0].getAttribute('src')) overlays[0].src = storePreviewSrc;
     const sources = {
       dssystem: layerSrc('img-1'),
       shmycar: layerSrc('img-2'),
@@ -201,16 +220,45 @@ document.head?.append(responsiveStyle);
     const setActive = slug => {
       const src = sources[slug] || '';
       if (!src) return;
-      if (overlay.getAttribute('src') !== src) overlay.src = src;
-      overlay.style.opacity = '1';
-      overlay.style.visibility = 'visible';
+      if (activeSource !== src) {
+        const previous = activeOverlay;
+        const next = overlays.find(overlay => overlay !== previous);
+        const token = ++previewToken;
+        activeOverlay = next;
+        activeSource = src;
+        window.clearTimeout(hideTimer);
+        if (next.getAttribute('src') !== src) next.src = src;
+        next.style.visibility = 'visible';
+        next.style.opacity = '0';
+        const reveal = () => {
+          if (token !== previewToken) return;
+          window.requestAnimationFrame(() => {
+            if (token !== previewToken) return;
+            next.style.opacity = '1';
+            previous.style.opacity = '0';
+            hideTimer = window.setTimeout(() => {
+              if (token === previewToken && previous !== activeOverlay) previous.style.visibility = 'hidden';
+            }, 390);
+          });
+        };
+        if (next.complete) reveal();
+        else next.addEventListener('load', reveal, { once: true });
+      } else {
+        activeOverlay.style.visibility = 'visible';
+        activeOverlay.style.opacity = '1';
+      }
       for (const card of cards()) {
         card.dataset.chanstoneWorkState = projectSlug(card) === slug ? 'active' : 'inactive';
       }
     };
     const clearActive = () => {
-      overlay.style.opacity = '0';
-      overlay.style.visibility = 'hidden';
+      const token = ++previewToken;
+      activeSource = '';
+      window.clearTimeout(hideTimer);
+      activeOverlay.style.opacity = '0';
+      hideTimer = window.setTimeout(() => {
+        if (token === previewToken) activeOverlay.style.visibility = 'hidden';
+      }, 390);
       for (const card of cards()) delete card.dataset.chanstoneWorkState;
     };
     for (const card of cards()) {
